@@ -1,5 +1,5 @@
 process SEQKIT_STATS {
-    container 'biocontainers/seqkit:2.4.0--h9ee0642_0'
+    container 'quay.io/biocontainers/seqkit:2.4.0--h9ee0642_0'
 
     input:
     path reads

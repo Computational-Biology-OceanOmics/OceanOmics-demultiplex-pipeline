@@ -1,5 +1,5 @@
 process VALIDATE_INPUT {
-    container 'quay.io/biocontainers/pandas:1.5.2'
+    container 'adbennett/pandas_excel:2.0.2'
 
     input:
     path index_file
@@ -16,11 +16,16 @@ process VALIDATE_INPUT {
     task.ext.when == null || task.ext.when
 
     script:
+    def index_file = "'$index_file'"
+    def plate_file = "'$plate_file'"
+    def metadata   = "'$metadata'"
+    def assays     = "'$assays'"
     """
     #!/usr/bin/env python3
 
     # Setup
     import pandas as pd
+    import sys
     assay_list = ${assays}.split(",")
 
     # Validate and import metadata file
@@ -35,7 +40,7 @@ process VALIDATE_INPUT {
     except FileNotFoundError:
         print("metadata file: " + ${metadata} + " - not found")
         sys.exit(1)
-    except PermssionError:
+    except PermissionError:
         print("metadata file: " + ${metadata} + " - permission denied")
         sys.exit(1)
     except AssertionError as e:
@@ -86,7 +91,7 @@ process VALIDATE_INPUT {
                 curr_assay_df = index_df[index_df["assay"] == assay]
                 if len(curr_assay_df["sample_id"]) != len(set(curr_assay_df["sample_id"])):
                     raise AssertionError("index file: " + ${index_file} + " - sample_id column can't contain duplicate samples within an assay")
-                if sorted(set(curr_assay_df["sample_id"])) != sorted(set(metadata["sample_id"])):
+                if sorted(set(curr_assay_df["sample_id"])) != sorted(set(metadata_df["sample_id"])):
                     raise AssertionError("index file: " + ${index_file} + " - sample_id column must have the same samples as metadata file")
             
             # Save valid file
@@ -95,7 +100,7 @@ process VALIDATE_INPUT {
         except FileNotFoundError:
             print("index file: " + ${index_file} + " - not found")
             sys.exit(1)
-        except PermssionError:
+        except PermissionError:
             print("index file: " + ${index_file} + " - permission denied")
             sys.exit(1)
         except AssertionError as e:
@@ -118,7 +123,7 @@ process VALIDATE_INPUT {
         
                 if curr_plate_df.columns[0] != "f_primers":
                     raise AssertionError("plate file: " + ${plate_file} + " - plate sheet must start with f_primers column")
-                if len([col for col in df.columns if '.' in col]) > 0:
+                if len([col for col in curr_plate_df.columns if '.' in col]) > 0:
                     raise AssertionError("plate file: " + ${plate_file} + " - plate sheet can't contain duplicate columns, or columns containing '.'")
                 if len(set(curr_plate_df["f_primers"])) != len(curr_plate_df["f_primers"]):
                     raise AssertionError("plate file: " + ${plate_file} + " - plate sheet can't contain duplicate f_primers")
@@ -127,14 +132,16 @@ process VALIDATE_INPUT {
                 curr_samples_df = curr_plate_df.iloc[:, 1:]
                 sample_list = []
                 for col in curr_samples_df.columns:
-                    for row in range(len(curr_samples_df.index))
-                        if not pd.isna(curr_samples_df.at[row,col])
+                    for row in range(len(curr_samples_df.index)):
+                        if not pd.isna(curr_samples_df.at[row,col]):
                             sample_list.append(curr_samples_df.at[row,col])
                 
                 if len(set(sample_list)) != len(sample_list):
                     raise AssertionError("plate file: " + ${plate_file} + " - plate sheet can't have duplicate samples")
-                if sorted(set(sample_list)) != sorted(set(metadata["sample_id"])):
-                    raise AssertionError("plate file: " + ${plate_file} + " - plate sheet samples must be the same as the samples in metadata file")
+                if sorted(set(sample_list)) != sorted(set(metadata_df["sample_id"])):
+                    raise AssertionError("plate file: " + ${plate_file} + " - plate sheet samples must be the same as the samples in metadata file. Samples missing from plate sheet: " +
+                    str(set(metadata_df["sample_id"]) - set(sample_list)) + ", samples missing from metadata: " +
+                    str(set(sample_list) - set(metadata_df["sample_id"])))
 
                 # Save valid file
                 curr_plate_df.to_csv("valid_plate" + assay +".csv", index=False)
@@ -142,7 +149,7 @@ process VALIDATE_INPUT {
             except FileNotFoundError:
                 print("plate file: " + ${plate_file} + " - not found")
                 sys.exit(1)
-            except PermssionError:
+            except PermissionError:
                 print("plate file: " + ${plate_file} + " - permission denied")
                 sys.exit(1)
             except ValueError:
@@ -169,7 +176,7 @@ process VALIDATE_INPUT {
                 
                 if len(set(curr_index_df["primer_#"])) != len(curr_index_df["primer_#"]):
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet can't contain duplicate values in 'primer_#' column")
-                if sorted(set(curr_index_df["primer_#"]))) != sorted(set(sample_list)):
+                if sorted(set(curr_index_df["primer_#"])) != sorted(set(sample_list)):
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet and plate sheet must contain same primers (e.g., if one sheet has 1F, the other sheet should also have 1F)")
 
                 # Save valid file
@@ -178,7 +185,7 @@ process VALIDATE_INPUT {
             except FileNotFoundError:
                 print("plate file: " + ${plate_file} + " - not found")
                 sys.exit(1)
-            except PermssionError:
+            except PermissionError:
                 print("plate file: " + ${plate_file} + " - permission denied")
                 sys.exit(1)
             except ValueError:

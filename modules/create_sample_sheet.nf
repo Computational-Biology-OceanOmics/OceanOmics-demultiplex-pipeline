@@ -2,7 +2,7 @@ process CREATE_SAMPLE_SHEET {
     container 'ubuntu:20.04'
 
     input:
-    path reads, 
+    path reads
     path metadata
 
     output:
@@ -13,6 +13,6 @@ process CREATE_SAMPLE_SHEET {
 
     script:
     """
-
+    touch s.csv
     """
 }

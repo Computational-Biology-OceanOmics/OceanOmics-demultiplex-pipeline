@@ -99,10 +99,10 @@ workflow DEMULTIPLEX_PIPELINE {
         ch_assays
     )
 
-    RAW_STATS (
-        ch_raw_data,
-        "raw"
-    )
+    //RAW_STATS (
+    //    ch_raw_data,
+    //    "raw"
+    //)
 
     CUTADAPT (
         ch_raw_data,
@@ -117,20 +117,20 @@ workflow DEMULTIPLEX_PIPELINE {
         ch_assays
     )
 
-    DEMUX_STATS (
-        RENAME.out.reads,
-        "demux"
-    )
+    //DEMUX_STATS (
+    //    RENAME.out.reads,
+    //    "demux"
+    //)
 
-    UNKNOWN_STATS (
-        RENAME.out.unknown,
-        "unknown"
-    )
+    //UNKNOWN_STATS (
+    //    RENAME.out.unknown,
+    //    "unknown"
+    //)
 
-    UNNAMED_STATS (
-        RENAME.out.unnamed,
-        "unnamed"
-    )
+    //UNNAMED_STATS (
+    //    RENAME.out.unnamed,
+    //    "unnamed"
+    //)
 
     TRIM_AND_CONCAT (
         RENAME.out.reads,
@@ -138,13 +138,17 @@ workflow DEMULTIPLEX_PIPELINE {
         ch_assays
     )
 
-    CONCAT_STATS (
-        TRIM_AND_CONCAT.out.reads,
-        "concat"
-    )
+    //CONCAT_STATS (
+    //    TRIM_AND_CONCAT.out.reads,
+    //    "concat"
+    //)
 
     CREATE_SAMPLE_SHEET (
         TRIM_AND_CONCAT.out.reads,
         ch_metadata
     )
+}
+
+workflow {
+    DEMULTIPLEX_PIPELINE ()
 }

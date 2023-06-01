@@ -21,7 +21,7 @@ process TRIM_AND_CONCAT {
         suffix=\$3
         forward_trim=\$4
         reverse_trim=\$5
-        prefix=$(basename "\$file2" | rev | cut -d '_' -f 2- | rev)
+        prefix=\$(basename "\$file2" | rev | cut -d '_' -f 2- | rev)
 
         if [[ "\$suffix" == "1.fq" ]]; then
             # Trim reads
@@ -29,7 +29,7 @@ process TRIM_AND_CONCAT {
             zcat "\$file2" | sed "0~2s/^.\\{\$reverse_trim\\}//g" > "\${prefix}_trimmed_reverse.\${suffix}"
         else
             # Trim reads
-            zcat "\$file1" | sed "0~2s/^.\\{\$reverse_trim\}//g" > "\${prefix}_trimmed_forward.\${suffix}"
+            zcat "\$file1" | sed "0~2s/^.\\{\$reverse_trim\\}//g" > "\${prefix}_trimmed_forward.\${suffix}"
             zcat "\$file2" | sed "0~2s/^.\\{\$forward_trim\\}//g" > "\${prefix}_trimmed_reverse.\${suffix}"
         fi
 

@@ -1,5 +1,5 @@
 process CREATE_INDEX_FILE {
-    container 'quay.io/biocontainers/pandas:1.5.2'
+    container 'adbennett/pandas_excel:2.0.2'
 
     input:
     path index_file
@@ -14,6 +14,10 @@ process CREATE_INDEX_FILE {
     task.ext.when == null || task.ext.when
 
     script:
+    def index_file = "'$index_file'"
+    def plate_file = "'$plate_file'"
+    def metadata   = "'$metadata'"
+    def assays     = "'$assays'"
     """
     #!/usr/bin/env python3
 
@@ -37,8 +41,8 @@ process CREATE_INDEX_FILE {
             # Loop through each sample in plate df, then get all the information needed for that sample
             for col in curr_plate_df.columns:
                 if col != "f_primers":
-                    for row in range(len(curr_plate_df.index))
-                        if not pd.isna(curr_plate_df.at[row,col])
+                    for row in range(len(curr_plate_df.index)):
+                        if not pd.isna(curr_plate_df.at[row,col]):
                             entry = dict()
                             entry["sample_id"] = curr_plate_df.at[row,col]
                             entry["assay"] = assay

@@ -33,7 +33,7 @@ process RENAME {
     done
 
     # Check if any samples in rename file didn't get demultiplexed
-    samples=$(awk '{split(\$2, a, ".#1.fq.gz"); print a[1]}' "sample_rename_concat.txt")
+    samples=\$(awk '{split(\$2, a, ".#1.fq.gz"); print a[1]}' "sample_rename_concat.txt")
     missing_samples=()
     for sample in \$samples; do
         if ! compgen -G "\$sample*"; then

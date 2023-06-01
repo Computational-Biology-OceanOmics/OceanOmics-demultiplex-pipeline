@@ -1,5 +1,5 @@
 process CREATE_DEMUX_DEPENDENCIES {
-    container 'biocontainers/r-tidyverse:1.2.1'
+    container 'quay.io/biocontainers/r-tidyverse:1.2.1'
 
     input:
     path index_file
@@ -14,6 +14,8 @@ process CREATE_DEMUX_DEPENDENCIES {
     task.ext.when == null || task.ext.when
 
     script:
+    def index_file = "$index_file"
+    def assays     = "$assays"
     """
     #!/usr/bin/env Rscript
 
