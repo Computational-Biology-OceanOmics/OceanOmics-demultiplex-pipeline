@@ -43,16 +43,18 @@ process CREATE_INDEX_FILE {
                 if col != "f_primers":
                     for row in range(len(curr_plate_df.index)):
                         if not pd.isna(curr_plate_df.at[row,col]):
-                            entry = dict()
-                            entry["sample_id"] = curr_plate_df.at[row,col]
-                            entry["assay"] = assay
-                            entry["index_seq_fw"] = curr_index_df.loc[curr_index_df['primer_#'] == col, 'tags'].values[0]
-                            entry["index_seq_rv"] = curr_index_df.loc[curr_index_df['primer_#'] == row, 'tags'].values[0]
-                            entry["full_primer_seq_fw"] = curr_index_df.loc[curr_index_df['primer_#'] == col, 'tags'].values[0]
-                            entry["full_primer_seq_rv"] = curr_index_df.loc[curr_index_df['primer_#'] == row, 'tags'].values[0]
-                            entry["fw_no"] = col
-                            entry["rv_no"] = row
-                            entry = pd.DataFrame.from_dict(entry)
+                            fw_no = col
+                            rv_no = curr_plate_df.at[row,"f_primers"]
+
+                            entry = pd.DataFrame({ \
+                                "sample_id":[curr_plate_df.at[row,col]], \
+                                "assay":[assay], \
+                                "index_seq_fw":[curr_index_df.loc[curr_index_df['primer_#'] == fw_no, 'tags'].values[0]], \
+                                "index_seq_rv":[curr_index_df.loc[curr_index_df['primer_#'] == rv_no, 'tags'].values[0]], \
+                                "full_primer_seq_fw":[curr_index_df.loc[curr_index_df['primer_#'] == fw_no, 'primer_seq'].values[0]], \
+                                "full_primer_seq_rv":[curr_index_df.loc[curr_index_df['primer_#'] == rv_no, 'primer_seq'].values[0]], \
+                                "fw_no":[fw_no], \
+                                "rv_no":[rv_no] })
                             index_df = pd.concat([index_df, entry], ignore_index=True)
         
         index_df.to_csv("indices.csv", index=False)

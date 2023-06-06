@@ -1,5 +1,5 @@
 process CREATE_DEMUX_DEPENDENCIES {
-    container 'quay.io/biocontainers/r-tidyverse:1.2.1'
+    container 'rocker/tidyverse:4.3.0'
 
     input:
     path index_file
@@ -14,15 +14,15 @@ process CREATE_DEMUX_DEPENDENCIES {
     task.ext.when == null || task.ext.when
 
     script:
-    def index_file = "$index_file"
-    def assays     = "$assays"
+    def index_file = "\"$index_file\""
+    def assays     = "\"$assays\""
     """
     #!/usr/bin/env Rscript
 
     suppressPackageStartupMessages(library(tidyverse))
 
     # All we need for now is the sample names and the forward and reverse
-    barcodes_all <- read_csv(${index_file}) 
+    barcodes_all <- read_csv(${index_file}, col_types=cols(.default='c'))
 
     #==========================================================================
     # index forward and reverse files are not correct in the original OneDrive location
@@ -36,7 +36,7 @@ process CREATE_DEMUX_DEPENDENCIES {
     # >Rv_name
     # Sequence
 
-    assays <- str_split_1(${assays})
+    assays <- str_split_1(${assays}, ",")
 
     for (assay in assays) {
         a <- assay

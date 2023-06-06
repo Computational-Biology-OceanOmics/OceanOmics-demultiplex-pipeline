@@ -29,7 +29,7 @@ def checkPathParamList = [
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (params.raw_data) { ch_raw_data = file(params.raw_data) } else { exit 1, 'Input raw data not specified!' }
+if (params.raw_data) { ch_raw_data = Channel.fromFilePairs(params.raw_data) } else { exit 1, 'Input raw data not specified!' }
 if (params.metadata) { ch_metadata = file(params.metadata) } else { exit 1, 'Input metadata not specified!' }
 if (params.outdir)   { ch_outdir   = file(params.outdir)   } else { exit 1, 'Input outdir not specified!'   }
 if (params.ulimit)   { ch_ulimit   = params.ulimit         } else { exit 1, 'Input ulimit not specified!'   }
@@ -78,7 +78,7 @@ include { VALIDATE_INPUT            } from './modules/validate_input.nf'
 
 workflow DEMULTIPLEX_PIPELINE {
     //
-    // MODULE: Validate metadata and index or plate file file
+    // MODULE: Validate metadata and index or plate file
     //
     VALIDATE_INPUT (
         ch_index,
@@ -87,6 +87,9 @@ workflow DEMULTIPLEX_PIPELINE {
         ch_assays
     )
 
+    //
+    // MODULE: Create Index file if it doesn't already exist
+    //
     CREATE_INDEX_FILE (
         VALIDATE_INPUT.out.valid_index,
         VALIDATE_INPUT.out.valid_plate,
@@ -94,16 +97,25 @@ workflow DEMULTIPLEX_PIPELINE {
         ch_assays
     )
 
+    //
+    // MODULE: Create index files for Cutadapt and sample rename file 
+    //
     CREATE_DEMUX_DEPENDENCIES (
         CREATE_INDEX_FILE.out.index_file,
         ch_assays
     )
 
+    //
+    // MODULE: Check stats of data before demultiplexing
+    //
     //RAW_STATS (
     //    ch_raw_data,
     //    "raw"
     //)
 
+    //
+    // MODULE: Demultiplex
+    //
     CUTADAPT (
         ch_raw_data,
         CREATE_DEMUX_DEPENDENCIES.out.fw_index,
@@ -111,38 +123,59 @@ workflow DEMULTIPLEX_PIPELINE {
         params.ulimit
     )
 
+    //
+    // MODULE: Rename samples after demultiplexing 
+    //
     RENAME (
         CUTADAPT.out.reads,
         CREATE_DEMUX_DEPENDENCIES.out.sample_rename,
         ch_assays
     )
 
+    //
+    // MODULE: Check stats of reads assigned to samples after demultiplexing
+    //
     //DEMUX_STATS (
     //    RENAME.out.reads,
     //    "demux"
     //)
 
+    //
+    // MODULE: Check stats of reads that couldn't be assigned to samples after demultiplexing
+    //
     //UNKNOWN_STATS (
     //    RENAME.out.unknown,
     //    "unknown"
     //)
 
+    //
+    // MODULE: Check stats of reads that did get demultiplexed, but couldn't be assigned during rename step
+    //
     //UNNAMED_STATS (
     //    RENAME.out.unnamed,
     //    "unnamed"
     //)
 
+    //
+    // MODULE: Trim leftover primers and concatenate files so that there is only one R1 and one R2 file per sample
+    //
     TRIM_AND_CONCAT (
         RENAME.out.reads,
         CREATE_INDEX_FILE.out.index_file,
         ch_assays
     )
 
+    //
+    // MODULE: Check stats after trimming and concatenating files
+    //
     //CONCAT_STATS (
     //    TRIM_AND_CONCAT.out.reads,
     //    "concat"
     //)
 
+    //
+    // MODULE: Create sample sheet in format suitable for nf-core pipelines
+    //
     CREATE_SAMPLE_SHEET (
         TRIM_AND_CONCAT.out.reads,
         ch_metadata

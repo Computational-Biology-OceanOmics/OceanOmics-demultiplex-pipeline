@@ -1,8 +1,8 @@
 process CUTADAPT {
-    container 'quay.io/biocontainers/cutadapt:3.4--py39h38f01e4_1'
+    container 'quay.io/biocontainers/cutadapt:4.1--py37h8902056_1'
 
     input:
-    path raw_data
+    tuple val(prefix), path(raw_data)
     path fw_index 
     path rv_index
     val ulimit

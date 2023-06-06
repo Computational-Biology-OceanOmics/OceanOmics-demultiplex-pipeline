@@ -10,7 +10,7 @@ process VALIDATE_INPUT {
     output:
     path "valid_metadata.csv", emit: valid_metadata
     path "*index_file.csv"   , emit: valid_index
-    path "*plate_file.csv"   , emit: valid_plate
+    path "*plate_file.xlsx"   , emit: valid_plate
 
     when:
     task.ext.when == null || task.ext.when
@@ -26,6 +26,8 @@ process VALIDATE_INPUT {
     # Setup
     import pandas as pd
     import sys
+    import warnings
+    warnings.filterwarnings("ignore", category = UserWarning, module = "openpyxl")
     assay_list = ${assays}.split(",")
 
     # Validate and import metadata file
@@ -128,10 +130,12 @@ process VALIDATE_INPUT {
                 if len(set(curr_plate_df["f_primers"])) != len(curr_plate_df["f_primers"]):
                     raise AssertionError("plate file: " + ${plate_file} + " - plate sheet can't contain duplicate f_primers")
                 
-                # Get a list of all samples in plate sheet for sample validation
+                # Get a list of all samples and primers in plate sheet
                 curr_samples_df = curr_plate_df.iloc[:, 1:]
                 sample_list = []
+                primer_list = list(curr_plate_df["f_primers"])
                 for col in curr_samples_df.columns:
+                    primer_list.append(col)
                     for row in range(len(curr_samples_df.index)):
                         if not pd.isna(curr_samples_df.at[row,col]):
                             sample_list.append(curr_samples_df.at[row,col])
@@ -140,11 +144,11 @@ process VALIDATE_INPUT {
                     raise AssertionError("plate file: " + ${plate_file} + " - plate sheet can't have duplicate samples")
                 if sorted(set(sample_list)) != sorted(set(metadata_df["sample_id"])):
                     raise AssertionError("plate file: " + ${plate_file} + " - plate sheet samples must be the same as the samples in metadata file. Samples missing from plate sheet: " +
-                    str(set(metadata_df["sample_id"]) - set(sample_list)) + ", samples missing from metadata: " +
-                    str(set(sample_list) - set(metadata_df["sample_id"])))
+                    str(sorted(set(metadata_df["sample_id"]) - set(sample_list))) + ", samples missing from metadata: " +
+                    str(sorted(set(sample_list) - set(metadata_df["sample_id"]))))
 
                 # Save valid file
-                curr_plate_df.to_csv("valid_plate" + assay +".csv", index=False)
+                curr_plate_df.to_csv("valid_plate_" + assay +".csv", index=False)
 
             except FileNotFoundError:
                 print("plate file: " + ${plate_file} + " - not found")
@@ -176,11 +180,11 @@ process VALIDATE_INPUT {
                 
                 if len(set(curr_index_df["primer_#"])) != len(curr_index_df["primer_#"]):
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet can't contain duplicate values in 'primer_#' column")
-                if sorted(set(curr_index_df["primer_#"])) != sorted(set(sample_list)):
+                if sorted(set(curr_index_df["primer_#"])) != sorted(set(primer_list)):
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet and plate sheet must contain same primers (e.g., if one sheet has 1F, the other sheet should also have 1F)")
 
                 # Save valid file
-                curr_index_df.to_csv("valid_index" + assay +".csv", index=False)
+                curr_index_df.to_csv("valid_index_" + assay +".csv", index=False)
 
             except FileNotFoundError:
                 print("plate file: " + ${plate_file} + " - not found")
@@ -200,7 +204,7 @@ process VALIDATE_INPUT {
             df.to_excel(writer, sheet_name=sheet_name, index=False)
 
         # Save the Excel file
-        writer.save()
+        writer.close()
     
     else:
         with open("empty_plate_file.xlsx", 'w') as file:
