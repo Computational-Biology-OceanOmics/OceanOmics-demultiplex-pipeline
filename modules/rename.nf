@@ -1,5 +1,5 @@
 process RENAME {
-    container 'ubuntu:20.04'
+    container 'adbennett/mmv:v0.1'
 
     input:
     path reads

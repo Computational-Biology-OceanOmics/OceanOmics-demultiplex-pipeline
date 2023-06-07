@@ -30,10 +30,12 @@ for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true
 
 // Check mandatory parameters
 if (params.raw_data) { ch_raw_data = Channel.fromFilePairs(params.raw_data) } else { exit 1, 'Input raw data not specified!' }
-if (params.metadata) { ch_metadata = file(params.metadata) } else { exit 1, 'Input metadata not specified!' }
-if (params.outdir)   { ch_outdir   = file(params.outdir)   } else { exit 1, 'Input outdir not specified!'   }
-if (params.ulimit)   { ch_ulimit   = params.ulimit         } else { exit 1, 'Input ulimit not specified!'   }
-if (params.assays)   { ch_assays   = params.assays         } else { exit 1, 'Input assays not specified!'   }
+if (params.metadata) { ch_metadata = file(params.metadata)                  } else { exit 1, 'Input metadata not specified!' }
+if (params.outdir)   { ch_outdir   = file(params.outdir)                    } else { exit 1, 'Input outdir not specified!'   }
+if (params.ulimit)   { ch_ulimit   = params.ulimit                          } else { exit 1, 'Input ulimit not specified!'   }
+if (params.assays)   { ch_assays   = params.assays                          } else { exit 1, 'Input assays not specified!'   }
+
+ch_raw_data = ch_raw_data.map { it[1] }.collect() // Remove the prefix because we just need the path to the raw data
 
 if (params.index_file )  { 
     if (params.plate_file) { 
@@ -108,10 +110,10 @@ workflow DEMULTIPLEX_PIPELINE {
     //
     // MODULE: Check stats of data before demultiplexing
     //
-    //RAW_STATS (
-    //    ch_raw_data,
-    //    "raw"
-    //)
+    RAW_STATS (
+        ch_raw_data,
+        "raw"
+    )
 
     //
     // MODULE: Demultiplex
@@ -135,26 +137,26 @@ workflow DEMULTIPLEX_PIPELINE {
     //
     // MODULE: Check stats of reads assigned to samples after demultiplexing
     //
-    //DEMUX_STATS (
-    //    RENAME.out.reads,
-    //    "demux"
-    //)
+    DEMUX_STATS (
+        RENAME.out.reads,
+        "demux"
+    )
 
     //
     // MODULE: Check stats of reads that couldn't be assigned to samples after demultiplexing
     //
-    //UNKNOWN_STATS (
-    //    RENAME.out.unknown,
-    //    "unknown"
-    //)
+    UNKNOWN_STATS (
+        RENAME.out.unknown,
+        "unknown"
+    )
 
     //
     // MODULE: Check stats of reads that did get demultiplexed, but couldn't be assigned during rename step
     //
-    //UNNAMED_STATS (
-    //    RENAME.out.unnamed,
-    //    "unnamed"
-    //)
+    UNNAMED_STATS (
+        RENAME.out.unnamed,
+        "unnamed"
+    )
 
     //
     // MODULE: Trim leftover primers and concatenate files so that there is only one R1 and one R2 file per sample
@@ -168,10 +170,10 @@ workflow DEMULTIPLEX_PIPELINE {
     //
     // MODULE: Check stats after trimming and concatenating files
     //
-    //CONCAT_STATS (
-    //    TRIM_AND_CONCAT.out.reads,
-    //    "concat"
-    //)
+    CONCAT_STATS (
+        TRIM_AND_CONCAT.out.reads,
+        "concat"
+    )
 
     //
     // MODULE: Create sample sheet in format suitable for nf-core pipelines

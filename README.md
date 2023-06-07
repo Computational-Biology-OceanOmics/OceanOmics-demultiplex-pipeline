@@ -16,6 +16,8 @@ nextflow run /path/to/OceanOmics-demultiplex-pipeline/main.nf --raw_data "path/t
 
 This will set the current directory as the work directory and the output files will be saved in a subdirectory called 'output'.
 
+You can add `-resume` to your command to resume a demultiplex run that has failed. Nextflow will attempt to resume the run at the beginning of the step that failed.
+
 ## Parameters
 
 These can all be set on the command line or in nexflow.config. Any parameters used on the command line will be used over the nextflow.config values
@@ -90,7 +92,7 @@ The output directory will contain several subdirectories with the various output
 - A 'demux_dependencies' directory will contain the files used for demultiplexing and sample file renaming,
 - An 'index_file' directory will contain the index file used for createing the demux dependencies,
 - A 'pipeline_info' directory will contain reports prodcude by the nextflow pipeline,
-- A 'renamed_fqs' directory will contain the .fq files after renaming,
+- A 'renamed_fqs' directory will contain the .fq files after renaming (there will be three directories; assigned, unknown, unnamed, plus a text file listing any samples that failed to get assigned),
 - A 'sample_sheet' directory will contain sample sheets in a format that can be used with nf-core pipelines,
 - A 'seqkit_stats' directory will contain all the seqkit stats output files,
 - A 'valid_input' directory will contain the input files that have been vaidated.
