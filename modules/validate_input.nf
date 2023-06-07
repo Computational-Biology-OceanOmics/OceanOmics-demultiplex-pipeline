@@ -45,6 +45,9 @@ process VALIDATE_INPUT {
     except PermissionError:
         print("metadata file: " + ${metadata} + " - permission denied")
         sys.exit(1)
+    except pd.errors.ParserError as e:
+        print("metadata file: " + ${metadata} + " - error parsing csv file\\n" + str(e))
+        sys.exit(1)
     except AssertionError as e:
         print(e)
         sys.exit(1)
@@ -112,6 +115,9 @@ process VALIDATE_INPUT {
             sys.exit(1)
         except PermissionError:
             print("index file: " + ${index_file} + " - permission denied")
+            sys.exit(1)
+        except pd.errors.ParserError as e:
+            print("index file: " + ${index_file} + " - error parsing csv file\\n" + str(e))
             sys.exit(1)
         except AssertionError as e:
             print(e)
