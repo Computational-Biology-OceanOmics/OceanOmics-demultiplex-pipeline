@@ -161,7 +161,7 @@ process VALIDATE_INPUT {
                     primer_list.append(col)
                     for row in range(len(curr_samples_df.index)):
                         if not pd.isna(curr_samples_df.at[row,col]):
-                            sample_list.append(curr_samples_df.at[row,col])
+                            sample_list.append(str(curr_samples_df.at[row,col]))
                 
                 # Make sure there are no duplicate samples in plate sheet
                 if len(set(sample_list)) != len(sample_list):
