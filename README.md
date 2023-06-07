@@ -87,12 +87,11 @@ The only mandatory column for the metadata file is 'sample_id'. Any additional c
 
 The output directory will contain several subdirectories with the various outputs of the pipeline.
 
-- A 'concat_fqs' directory will contain the fq files after trimming and concatenating,
+- A 'concat_fqs' directory will contain the fq files after trimming and concatenating (This is the final demux file directory),
 - A 'cutadapt' directory will have the cutadapt output .fq files
 - A 'demux_dependencies' directory will contain the files used for demultiplexing and sample file renaming,
 - An 'index_file' directory will contain the index file used for createing the demux dependencies,
 - A 'pipeline_info' directory will contain reports prodcude by the nextflow pipeline,
 - A 'renamed_fqs' directory will contain the .fq files after renaming (there will be three directories; assigned, unknown, unnamed, plus a text file listing any samples that failed to get assigned),
-- A 'sample_sheet' directory will contain sample sheets in a format that can be used with nf-core pipelines,
 - A 'seqkit_stats' directory will contain all the seqkit stats output files,
 - A 'valid_input' directory will contain the input files that have been vaidated.

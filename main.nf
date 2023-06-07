@@ -62,7 +62,6 @@ if (params.index_file )  {
 
 include { CREATE_DEMUX_DEPENDENCIES } from './modules/create_demux_dependencies.nf'
 include { CREATE_INDEX_FILE         } from './modules/create_index_file.nf'
-include { CREATE_SAMPLE_SHEET       } from './modules/create_sample_sheet.nf'
 include { CUTADAPT                  } from './modules/cutadapt.nf'
 include { RENAME                    } from './modules/rename.nf'
 include { SEQKIT_STATS as \
@@ -173,14 +172,6 @@ workflow DEMULTIPLEX_PIPELINE {
     CONCAT_STATS (
         TRIM_AND_CONCAT.out.reads,
         "concat"
-    )
-
-    //
-    // MODULE: Create sample sheet in format suitable for nf-core pipelines
-    //
-    CREATE_SAMPLE_SHEET (
-        TRIM_AND_CONCAT.out.reads,
-        ch_metadata
     )
 }
 
