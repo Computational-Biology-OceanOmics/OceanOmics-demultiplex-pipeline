@@ -29,11 +29,11 @@ def checkPathParamList = [
 for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
 
 // Check mandatory parameters
-if (params.raw_data) { ch_raw_data = Channel.fromFilePairs(params.raw_data) } else { exit 1, 'Input raw data not specified!' }
-if (params.metadata) { ch_metadata = file(params.metadata)                  } else { exit 1, 'Input metadata not specified!' }
-if (params.outdir)   { ch_outdir   = file(params.outdir)                    } else { exit 1, 'Input outdir not specified!'   }
-if (params.ulimit)   { ch_ulimit   = params.ulimit                          } else { exit 1, 'Input ulimit not specified!'   }
-if (params.assays)   { ch_assays   = params.assays                          } else { exit 1, 'Input assays not specified!'   }
+if (params.raw_data) { ch_raw_data = Channel.fromFilePairs(params.raw_data, checkIfExists: true) } else { exit 1, 'Input raw data not specified!' }
+if (params.metadata) { ch_metadata = file(params.metadata) } else { exit 1, 'Input metadata not specified!' }
+if (params.outdir)   { ch_outdir   = file(params.outdir)   } else { exit 1, 'Input outdir not specified!'   }
+if (params.ulimit)   { ch_ulimit   = params.ulimit         } else { exit 1, 'Input ulimit not specified!'   }
+if (params.assays)   { ch_assays   = params.assays         } else { exit 1, 'Input assays not specified!'   }
 
 ch_raw_data = ch_raw_data.map { it[1] }.collect() // Remove the prefix because we just need the path to the raw data
 
