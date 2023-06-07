@@ -80,31 +80,38 @@ process VALIDATE_INPUT {
             if "assay" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'assay' column")
             if index_df["assay"].isnull().values.any():
-                raise AssertionError("index file: " + ${index_file} + " - 'assay' column can't contain any NA values")
+                raise AssertionError("index file: " + ${index_file} + " - 'assay' column can't contain any NA values. Samples with NAs: " + 
+                sorted(list(index_df[index_df["assay"].isna()]["sample_id"])))
             if "index_seq_fw" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'index_seq_fw' column")
             if index_df["index_seq_fw"].isnull().values.any():
-                raise AssertionError("index file: " + ${index_file} + " - 'index_seq_fw' column can't contain any NA values")
+                raise AssertionError("index file: " + ${index_file} + " - 'index_seq_fw' column can't contain any NA values. Samples with NAs: " + 
+                sorted(list(index_df[index_df["index_seq_fw"].isna()]["sample_id"])))
             if "index_seq_rv" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'index_seq_rv' column")
             if index_df["index_seq_rv"].isnull().values.any():
-                raise AssertionError("index file: " + ${index_file} + " - 'index_seq_rv' column can't contain any NA values")
+                raise AssertionError("index file: " + ${index_file} + " - 'index_seq_rv' column can't contain any NA values. Samples with NAs: " + 
+                sorted(list(index_df[index_df["index_seq_rv"].isna()]["sample_id"])))
             if "full_primer_seq_fw" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'full_primer_seq_fw' column")
             if index_df["full_primer_seq_fw"].isnull().values.any():
-                raise AssertionError("index file: " + ${index_file} + " - 'full_primer_seq_fw' column can't contain any NA values")
+                raise AssertionError("index file: " + ${index_file} + " - 'full_primer_seq_fw' column can't contain any NA values. Samples with NAs: " + 
+                sorted(list(index_df[index_df["full_primer_seq_fw"].isna()]["sample_id"])))
             if "full_primer_seq_rv" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'full_primer_seq_rv' column")
             if index_df["full_primer_seq_rv"].isnull().values.any():
-                raise AssertionError("index file: " + ${index_file} + " - 'full_primer_seq_rv' column can't contain any NA values")
+                raise AssertionError("index file: " + ${index_file} + " - 'full_primer_seq_rv' column can't contain any NA values. Samples with NAs: " + 
+                sorted(list(index_df[index_df["full_primer_seq_rv"].isna()]["sample_id"])))
             if "fw_no" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'fw_no' column")
             if index_df["fw_no"].isnull().values.any():
-                raise AssertionError("index file: " + ${index_file} + " - 'fw_no' column can't contain any NA values")
+                raise AssertionError("index file: " + ${index_file} + " - 'fw_no' column can't contain any NA values. Samples with NAs: " + 
+                sorted(list(index_df[index_df["fw_no"].isna()]["sample_id"])))
             if "rv_no" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'rv_no' column")
             if index_df["rv_no"].isnull().values.any():
-                raise AssertionError("index file: " + ${index_file} + " - 'rv_no' column can't contain any NA values")
+                raise AssertionError("index file: " + ${index_file} + " - 'rv_no' column can't contain any NA values. Samples with NAs: " + 
+                sorted(list(index_df[index_df["rv_no"].isna()]["sample_id"])))
 
             for assay in assay_list:
                 # Make sure the assay parameter is found in the index file
@@ -227,15 +234,18 @@ process VALIDATE_INPUT {
                 if "primer_id" not in curr_index_df.columns:
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'primer_id' column")
                 if curr_index_df["primer_id"].isnull().values.any():
-                    raise AssertionError("plate file: " + ${plate_file} + " - 'primer_id' column can't contain any NA values")
+                    raise AssertionError("plate file: " + ${plate_file} + " - 'primer_id' column can't contain any NA values. Primers with NAs: " + 
+                    sorted(list(curr_index_df[curr_index_df["primer_id"].isna()]["primer_#"])))
                 if "primer_seq" not in curr_index_df.columns:
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'primer_seq' column")
                 if curr_index_df["primer_seq"].isnull().values.any():
-                    raise AssertionError("plate file: " + ${plate_file} + " - 'primer_seq' column can't contain any NA values")
+                    raise AssertionError("plate file: " + ${plate_file} + " - 'primer_seq' column can't contain any NA values. Primers with NAs: " + 
+                    sorted(list(curr_index_df[curr_index_df["primer_seq"].isna()]["primer_#"])))
                 if "tags" not in curr_index_df.columns:
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'tags' column")
                 if curr_index_df["tags"].isnull().values.any():
-                    raise AssertionError("plate file: " + ${plate_file} + " - 'tags' column can't contain any NA values")
+                    raise AssertionError("plate file: " + ${plate_file} + " - 'tags' column can't contain any NA values. Primers with NAs: " + 
+                    sorted(list(curr_index_df[curr_index_df["tags"].isna()]["primer_#"])))
                 
                 # Make sure we don't have duplicate primers
                 if len(set(curr_index_df["primer_#"])) != len(curr_index_df["primer_#"]):
