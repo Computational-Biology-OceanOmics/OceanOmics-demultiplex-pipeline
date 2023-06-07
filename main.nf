@@ -67,13 +67,13 @@ include { RENAME                    } from './modules/rename.nf'
 include { SEQKIT_STATS as \
           RAW_STATS;
           SEQKIT_STATS as \
-          DEMUX_STATS;
+          ASSIGNED_STATS;
           SEQKIT_STATS as \
           UNKNOWN_STATS;
           SEQKIT_STATS as \
           UNNAMED_STATS;
           SEQKIT_STATS as \
-          CONCAT_STATS              } from './modules/seqkit_stats.nf'
+          FINAL_STATS              } from './modules/seqkit_stats.nf'
 include { TRIM_AND_CONCAT           } from './modules/trim_and_concat.nf'
 include { VALIDATE_INPUT            } from './modules/validate_input.nf'
 
@@ -136,9 +136,9 @@ workflow DEMULTIPLEX_PIPELINE {
     //
     // MODULE: Check stats of reads assigned to samples after demultiplexing
     //
-    DEMUX_STATS (
+    ASSIGNED_STATS (
         RENAME.out.reads,
-        "demux"
+        "assigned"
     )
 
     //
@@ -169,9 +169,9 @@ workflow DEMULTIPLEX_PIPELINE {
     //
     // MODULE: Check stats after trimming and concatenating files
     //
-    CONCAT_STATS (
+    FINAL_STATS (
         TRIM_AND_CONCAT.out.reads,
-        "concat"
+        "final"
     )
 }
 
