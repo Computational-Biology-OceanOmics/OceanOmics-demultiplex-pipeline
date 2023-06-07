@@ -35,6 +35,8 @@ process VALIDATE_INPUT {
         metadata_df = pd.read_csv(${metadata})
         if "sample_id" not in metadata_df.columns:
             raise AssertionError("metadata file: " + ${metadata} + " - missing 'sample_id' column")
+        if metadata_df["sample_id"].isnull().values.any():
+            raise AssertionError("metadata file: " + ${metadata} + " - 'sample_id' column can't contain any NA values")
 
         # Save valid file
         metadata_df.to_csv("valid_metadata.csv", index=False)
@@ -70,23 +72,39 @@ process VALIDATE_INPUT {
         try:
             index_df = pd.read_csv(${index_file})
     
-            # Validate column names
+            # Validate columns
             if "sample_id" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'sample_id' column")
+            if index_df["sample_id"].isnull().values.any():
+                raise AssertionError("index file: " + ${index_file} + " - 'sample_id' column can't contain any NA values")
             if "assay" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'assay' column")
+            if index_df["assay"].isnull().values.any():
+                raise AssertionError("index file: " + ${index_file} + " - 'assay' column can't contain any NA values")
             if "index_seq_fw" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'index_seq_fw' column")
+            if index_df["index_seq_fw"].isnull().values.any():
+                raise AssertionError("index file: " + ${index_file} + " - 'index_seq_fw' column can't contain any NA values")
             if "index_seq_rv" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'index_seq_rv' column")
+            if index_df["index_seq_rv"].isnull().values.any():
+                raise AssertionError("index file: " + ${index_file} + " - 'index_seq_rv' column can't contain any NA values")
             if "full_primer_seq_fw" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'full_primer_seq_fw' column")
+            if index_df["full_primer_seq_fw"].isnull().values.any():
+                raise AssertionError("index file: " + ${index_file} + " - 'full_primer_seq_fw' column can't contain any NA values")
             if "full_primer_seq_rv" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'full_primer_seq_rv' column")
+            if index_df["full_primer_seq_rv"].isnull().values.any():
+                raise AssertionError("index file: " + ${index_file} + " - 'full_primer_seq_rv' column can't contain any NA values")
             if "fw_no" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'fw_no' column")
+            if index_df["fw_no"].isnull().values.any():
+                raise AssertionError("index file: " + ${index_file} + " - 'fw_no' column can't contain any NA values")
             if "rv_no" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'rv_no' column")
+            if index_df["rv_no"].isnull().values.any():
+                raise AssertionError("index file: " + ${index_file} + " - 'rv_no' column can't contain any NA values")
 
             for assay in assay_list:
                 # Make sure the assay parameter is found in the index file
@@ -139,19 +157,21 @@ process VALIDATE_INPUT {
                 curr_plate_df = pd.read_excel(${plate_file}, sheet_name = assay + "_plate")
                 df_dict[assay + "_plate"] = curr_plate_df
         
-                # The first column should be 'f_primers'
+                # The first column should be 'f_primers' and it can't contain NA values
                 if curr_plate_df.columns[0] != "f_primers":
                     raise AssertionError("plate file: " + ${plate_file} + " - plate sheet must start with f_primers column")
-
-                # Pandas will add a '.' and a number to a column name if there are duplicate columns. We can use this to check for duplicates.
-                if len([col for col in curr_plate_df.columns if '.' in col]) > 0:
-                    raise AssertionError("plate file: " + ${plate_file} + " - plate sheet can't contain duplicate columns, or columns containing '.'. Offending columns: " +
-                    str(sorted(list([col for col in curr_plate_df.columns if '.' in col]))))
+                if curr_plate_df["f_primers"].isnull().values.any():
+                    raise AssertionError("plate file: " + ${plate_file} + " - 'f_primers' column can't contain any NA values")
 
                 # Make sure there are no duplicate 'f_primers'
                 if len(set(curr_plate_df["f_primers"])) != len(curr_plate_df["f_primers"]):
                     raise AssertionError("plate file: " + ${plate_file} + " - plate sheet can't contain duplicate f_primers. Duplicate f_primers: " +
                     str(sorted(list(curr_plate_df[curr_plate_df.duplicated(subset="f_primers", keep=False)]["f_primers"].unique()))))
+
+                # Pandas will add a '.' and a number to a column name if there are duplicate columns. We can use this to check for duplicates.
+                if len([col for col in curr_plate_df.columns if '.' in col]) > 0:
+                    raise AssertionError("plate file: " + ${plate_file} + " - plate sheet can't contain duplicate columns, or columns containing '.'. Offending columns: " +
+                    str(sorted(list([col for col in curr_plate_df.columns if '.' in col]))))
                 
                 # Get a list of all samples and primers in plate sheet
                 curr_samples_df = curr_plate_df.iloc[:, 1:]
@@ -199,13 +219,23 @@ process VALIDATE_INPUT {
                 curr_index_df = pd.read_excel(${plate_file}, sheet_name = assay + "_index")
                 df_dict[assay + "_index"] = curr_index_df
     
-                # Validate column names
+                # Validate columns
                 if "primer_#" not in curr_index_df.columns:
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'primer_#' column")
+                if curr_index_df["primer_#"].isnull().values.any():
+                    raise AssertionError("plate file: " + ${plate_file} + " - 'primer_#' column can't contain any NA values")
+                if "primer_id" not in curr_index_df.columns:
+                    raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'primer_id' column")
+                if curr_index_df["primer_id"].isnull().values.any():
+                    raise AssertionError("plate file: " + ${plate_file} + " - 'primer_id' column can't contain any NA values")
                 if "primer_seq" not in curr_index_df.columns:
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'primer_seq' column")
+                if curr_index_df["primer_seq"].isnull().values.any():
+                    raise AssertionError("plate file: " + ${plate_file} + " - 'primer_seq' column can't contain any NA values")
                 if "tags" not in curr_index_df.columns:
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'tags' column")
+                if curr_index_df["tags"].isnull().values.any():
+                    raise AssertionError("plate file: " + ${plate_file} + " - 'tags' column can't contain any NA values")
                 
                 # Make sure we don't have duplicate primers
                 if len(set(curr_index_df["primer_#"])) != len(curr_index_df["primer_#"]):
