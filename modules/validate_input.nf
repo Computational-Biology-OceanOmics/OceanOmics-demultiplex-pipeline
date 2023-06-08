@@ -32,7 +32,7 @@ process VALIDATE_INPUT {
 
     # Validate and import metadata file
     try:
-        metadata_df = pd.read_csv(${metadata})
+        metadata_df = pd.read_csv(${metadata}, dtype=str)
         if "sample_id" not in metadata_df.columns:
             raise AssertionError("metadata file: " + ${metadata} + " - missing 'sample_id' column")
         if metadata_df["sample_id"].isnull().values.any():
@@ -70,7 +70,7 @@ process VALIDATE_INPUT {
     # Validate and import index file
     if ${index_file} != "":
         try:
-            index_df = pd.read_csv(${index_file})
+            index_df = pd.read_csv(${index_file}, dtype=str)
     
             # Validate columns
             if "sample_id" not in index_df.columns:
@@ -228,7 +228,7 @@ process VALIDATE_INPUT {
             
             # Import the index sheet
             try:
-                curr_index_df = pd.read_excel(${plate_file}, sheet_name = assay + "_index")
+                curr_index_df = pd.read_excel(${plate_file}, sheet_name = assay + "_index", dtype=str)
                 df_dict[assay + "_index"] = curr_index_df
     
                 # Validate columns
