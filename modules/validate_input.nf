@@ -77,36 +77,43 @@ process VALIDATE_INPUT {
                 raise AssertionError("index file: " + ${index_file} + " - missing 'sample_id' column")
             if index_df["sample_id"].isnull().values.any():
                 raise AssertionError("index file: " + ${index_file} + " - 'sample_id' column can't contain any NA values")
+
             if "assay" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'assay' column")
             if index_df["assay"].isnull().values.any():
                 raise AssertionError("index file: " + ${index_file} + " - 'assay' column can't contain any NA values. Samples with NAs: " + 
                 str(sorted(list(index_df[index_df["assay"].isna()]["sample_id"]))))
+
             if "index_seq_fw" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'index_seq_fw' column")
             if index_df["index_seq_fw"].isnull().values.any():
                 raise AssertionError("index file: " + ${index_file} + " - 'index_seq_fw' column can't contain any NA values. Samples with NAs: " + 
                 str(sorted(list(index_df[index_df["index_seq_fw"].isna()]["sample_id"]))))
+
             if "index_seq_rv" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'index_seq_rv' column")
             if index_df["index_seq_rv"].isnull().values.any():
                 raise AssertionError("index file: " + ${index_file} + " - 'index_seq_rv' column can't contain any NA values. Samples with NAs: " + 
                 str(sorted(list(index_df[index_df["index_seq_rv"].isna()]["sample_id"]))))
+
             if "full_primer_seq_fw" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'full_primer_seq_fw' column")
             if index_df["full_primer_seq_fw"].isnull().values.any():
                 raise AssertionError("index file: " + ${index_file} + " - 'full_primer_seq_fw' column can't contain any NA values. Samples with NAs: " + 
                 str(sorted(list(index_df[index_df["full_primer_seq_fw"].isna()]["sample_id"]))))
+
             if "full_primer_seq_rv" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'full_primer_seq_rv' column")
             if index_df["full_primer_seq_rv"].isnull().values.any():
                 raise AssertionError("index file: " + ${index_file} + " - 'full_primer_seq_rv' column can't contain any NA values. Samples with NAs: " + 
                 str(sorted(list(index_df[index_df["full_primer_seq_rv"].isna()]["sample_id"]))))
+
             if "fw_no" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'fw_no' column")
             if index_df["fw_no"].isnull().values.any():
                 raise AssertionError("index file: " + ${index_file} + " - 'fw_no' column can't contain any NA values. Samples with NAs: " + 
                 str(sorted(list(index_df[index_df["fw_no"].isna()]["sample_id"]))))
+                
             if "rv_no" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'rv_no' column")
             if index_df["rv_no"].isnull().values.any():
@@ -132,10 +139,50 @@ process VALIDATE_INPUT {
                     str(sorted(set(metadata_df["sample_id"]) - set(curr_assay_df["sample_id"]))) + ", samples missing from metadata: " +
                     str(sorted(set(curr_assay_df["sample_id"]) - set(metadata_df["sample_id"]))))
 
-                # TO ADD
-                # Check all combinations of fw_no and rv_no are used once
-                # Check that each fw_no and rv_no has a different index/primer
-                # Check that no index/primers are used in multiple fw_no or rv_no
+                # Let's use a list and dictionary for further validation
+                fw_rv_list = []
+                fw_rv_dict = {}
+                for row in range(len(curr_assay_df.index)):
+                    fw = str(curr_assay_df.at[row,"fw_no"])
+                    rv = str(curr_assay_df.at[row,"rv_no"])
+                    fw_index = str(curr_assay_df.at[row,"index_seq_fw"]
+                    rv_index = str(curr_assay_df.at[row,"index_seq_rv"]
+
+                    # Check that each fw_no and rv_no has only one index
+                    if fw in fw_rv_dict:
+                        if fw_rv_dict[fw] != fw_index:
+                            raise AssertionError("index file: " + ${index_file} + " - A fw_no can't have multiple indexes. Fw_no: " + 
+                            str(fw) + " index: " str(fw_rv_dict[fw]) + ", " + str(fw_index)
+                    if rv in fw_rv_dict:
+                        if fw_rv_dict[rv] != rv_index:
+                            raise AssertionError("index file: " + ${index_file} + " - A rv_no can't have multiple indexes. Rv_no: " + 
+                            str(rv) + " index: " str(fw_rv_dict[rv]) + ", " + str(rv_index)
+                    
+                    fw_rv_list.append(fw + "_" + rv)
+                    fw_rv_dict[fw] = fw_index
+                    fw_rv_dict[rv] = rv_index
+
+                # Make sure there are no duplicate combinations
+                if len(fw_rv_list) != len(set(fw_rv_list)):
+                    raise AssertionError("index file: " + ${index_file} + " - Can't contain duplicate fw_no and rv_no combinations. Duplicate combinations: " +
+                    str(list(set([item for item in fw_rv_list if fw_rv_list.count(item) > 1]))))
+                
+                # Check that each fw_no and rv_no has a different index
+                if len(fw_rv_dict) != len(set(fw_rv_dict.values())):
+                    duplicates = {}
+                    seen = set()
+
+                    for key, value in fw_rv_dict.items():
+                        if value in seen:
+                            duplicates.setdefault(value, []).append(key)
+                        else:
+                            seen.add(value)
+                    output_str = ""
+                    for index, no in duplicates.items():
+                        output_str = output_str + "\\n" + str(index) + ": found in " + str(no)
+                         
+                    raise AssertionError("index file: " + ${index_file} + " - Each fw_no and rv_no must have different index sequences." +
+                    output_str)
 
             # Save valid file
             index_df.to_csv("valid_index_file.csv", index=False)
