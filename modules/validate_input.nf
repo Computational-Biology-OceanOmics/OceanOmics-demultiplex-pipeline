@@ -114,7 +114,7 @@ process VALIDATE_INPUT {
                 str(sorted(list(index_df[index_df["rv_no"].isna()]["sample_id"]))))
 
             for assay in assay_list:
-                # Make sure the assay parameter is found in the index file
+                # Make sure the current assay is found in the index file
                 if assay not in list(index_df["assay"]):
                     raise AssertionError("assay: " + assay + " - not found in " + ${index_file})
 
@@ -131,6 +131,11 @@ process VALIDATE_INPUT {
                     raise AssertionError("index file: " + ${index_file} + " - sample_id column must have the same samples as metadata file. Samples missing from index file: " +
                     str(sorted(set(metadata_df["sample_id"]) - set(curr_assay_df["sample_id"]))) + ", samples missing from metadata: " +
                     str(sorted(set(curr_assay_df["sample_id"]) - set(metadata_df["sample_id"]))))
+
+                # TO ADD
+                # Check all combinations of fw_no and rv_no are used once
+                # Check that each fw_no and rv_no has a different index/primer
+                # Check that no index/primers are used in multiple fw_no or rv_no
 
             # Save valid file
             index_df.to_csv("valid_index_file.csv", index=False)
@@ -161,7 +166,7 @@ process VALIDATE_INPUT {
         for assay in assay_list:
             # First import the plate sheet
             try:
-                curr_plate_df = pd.read_excel(${plate_file}, sheet_name = assay + "_plate")
+                curr_plate_df = pd.read_excel(${plate_file}, sheet_name = assay + "_plate", dtype=str)
                 df_dict[assay + "_plate"] = curr_plate_df
         
                 # The first column should be 'f_primers' and it can't contain NA values

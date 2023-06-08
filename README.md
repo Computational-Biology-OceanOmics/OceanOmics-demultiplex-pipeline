@@ -26,7 +26,7 @@ These can all be set on the command line or in nexflow.config. Any parameters us
 - index_file (default=null): .csv file. Not needed if using plate file. More information about input files below,
 - plate_file (default=null): .xlsx file. Not needed if using index file. More information about input files below,
 - metadata (default=null): .csv file. More information about input files below,
-- ulimit (default=10000): Increase this value if you run into a "too many files open" error during Cutadapt,
+- ulimit (default=10000): Increase this value if you encounter a "cutadapt: error: [Errno 24] Too many open files" during Cutadapt,
 - outdir (default=null): Directory where output files get stored. More information about output files below,
 - bind_dir (default=null): Bind directory for Docker,
 - assays (default=null): Can be one assay (e.g., 16S), or multiple assays separated with commas (e.g., 16S,MiFish)
