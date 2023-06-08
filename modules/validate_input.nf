@@ -167,7 +167,7 @@ process VALIDATE_INPUT {
                     raise AssertionError("index file: " + ${index_file} + " - Can't contain duplicate fw_no and rv_no combinations. Duplicate combinations: " +
                     str(list(set([item for item in fw_rv_list if fw_rv_list.count(item) > 1]))))
                 
-                # Check that each fw_no and rv_no has a unique index
+                # Check that each index sequence has only one fw_no or rv_no
                 if len(fw_rv_dict) != len(set(fw_rv_dict.values())):
                     
                     # Create a dictionary of index sequences that have multiple index numbers
