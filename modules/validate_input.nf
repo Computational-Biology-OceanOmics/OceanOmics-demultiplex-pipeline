@@ -145,18 +145,18 @@ process VALIDATE_INPUT {
                 for row in range(len(curr_assay_df.index)):
                     fw = str(curr_assay_df.at[row,"fw_no"])
                     rv = str(curr_assay_df.at[row,"rv_no"])
-                    fw_index = str(curr_assay_df.at[row,"index_seq_fw"]
-                    rv_index = str(curr_assay_df.at[row,"index_seq_rv"]
+                    fw_index = str(curr_assay_df.at[row,"index_seq_fw"])
+                    rv_index = str(curr_assay_df.at[row,"index_seq_rv"])
 
                     # Check that each fw_no and rv_no has only one index
                     if fw in fw_rv_dict:
                         if fw_rv_dict[fw] != fw_index:
                             raise AssertionError("index file: " + ${index_file} + " - A fw_no can't have multiple indexes. Fw_no: " + 
-                            str(fw) + " index: " str(fw_rv_dict[fw]) + ", " + str(fw_index)
+                            str(fw) + " - index: " + str(fw_rv_dict[fw]) + ", " + str(fw_index))
                     if rv in fw_rv_dict:
                         if fw_rv_dict[rv] != rv_index:
                             raise AssertionError("index file: " + ${index_file} + " - A rv_no can't have multiple indexes. Rv_no: " + 
-                            str(rv) + " index: " str(fw_rv_dict[rv]) + ", " + str(rv_index)
+                            str(rv) + " - index: " + str(fw_rv_dict[rv]) + ", " + str(rv_index))
                     
                     fw_rv_list.append(fw + "_" + rv)
                     fw_rv_dict[fw] = fw_index
@@ -170,16 +170,17 @@ process VALIDATE_INPUT {
                 # Check that each fw_no and rv_no has a different index
                 if len(fw_rv_dict) != len(set(fw_rv_dict.values())):
                     duplicates = {}
-                    seen = set()
+                    seen = {}
 
-                    for key, value in fw_rv_dict.items():
-                        if value in seen:
-                            duplicates.setdefault(value, []).append(key)
+                    for index_no, index in fw_rv_dict.items():
+                        if index in seen:
+                            duplicates.setdefault(index, []).append(seen[index])
+                            duplicates.setdefault(index, []).append(index_no)
                         else:
-                            seen.add(value)
+                            seen[index] = index_no
                     output_str = ""
-                    for index, no in duplicates.items():
-                        output_str = output_str + "\\n" + str(index) + ": found in " + str(no)
+                    for index, index_no in duplicates.items():
+                        output_str = output_str + "\\n" + str(index) + ": found in " + str(index_no)
                          
                     raise AssertionError("index file: " + ${index_file} + " - Each fw_no and rv_no must have different index sequences." +
                     output_str)
