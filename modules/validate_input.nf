@@ -167,20 +167,23 @@ process VALIDATE_INPUT {
                     raise AssertionError("index file: " + ${index_file} + " - Can't contain duplicate fw_no and rv_no combinations. Duplicate combinations: " +
                     str(list(set([item for item in fw_rv_list if fw_rv_list.count(item) > 1]))))
                 
-                # Check that each fw_no and rv_no has a different index
+                # Check that each fw_no and rv_no has a unique index
                 if len(fw_rv_dict) != len(set(fw_rv_dict.values())):
+                    
+                    # Create a dictionary of index sequences that have multiple index numbers
                     duplicates = {}
                     seen = {}
-
-                    for index_no, index in fw_rv_dict.items():
-                        if index in seen:
-                            duplicates.setdefault(index, []).append(seen[index])
-                            duplicates.setdefault(index, []).append(index_no)
+                    for index_no, index_seq in fw_rv_dict.items():
+                        if index_seq in seen:
+                            duplicates.setdefault(index_seq, []).append(seen[index_seq])
+                            duplicates.setdefault(index_seq, []).append(index_no)
                         else:
-                            seen[index] = index_no
+                            seen[index_seq] = index_no
+                    
+                    # Use the dictionary we just created to create an error message
                     output_str = ""
-                    for index, index_no in duplicates.items():
-                        output_str = output_str + "\\n" + str(index) + ": found in " + str(index_no)
+                    for index_seq, index_no in duplicates.items():
+                        output_str = output_str + "\\n" + str(index_seq) + ": found in " + str(index_no)
                          
                     raise AssertionError("index file: " + ${index_file} + " - Each fw_no and rv_no must have different index sequences." +
                     output_str)
@@ -284,16 +287,19 @@ process VALIDATE_INPUT {
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'primer_#' column")
                 if curr_index_df["primer_#"].isnull().values.any():
                     raise AssertionError("plate file: " + ${plate_file} + " - 'primer_#' column can't contain any NA values")
+
                 if "primer_id" not in curr_index_df.columns:
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'primer_id' column")
                 if curr_index_df["primer_id"].isnull().values.any():
                     raise AssertionError("plate file: " + ${plate_file} + " - 'primer_id' column can't contain any NA values. Primers with NAs: " + 
                     str(sorted(list(curr_index_df[curr_index_df["primer_id"].isna()]["primer_#"]))))
+
                 if "primer_seq" not in curr_index_df.columns:
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'primer_seq' column")
                 if curr_index_df["primer_seq"].isnull().values.any():
                     raise AssertionError("plate file: " + ${plate_file} + " - 'primer_seq' column can't contain any NA values. Primers with NAs: " + 
                     str(sorted(list(curr_index_df[curr_index_df["primer_seq"].isna()]["primer_#"]))))
+
                 if "tags" not in curr_index_df.columns:
                     raise AssertionError("plate file: " + ${plate_file} + " - index sheet must have 'tags' column")
                 if curr_index_df["tags"].isnull().values.any():
