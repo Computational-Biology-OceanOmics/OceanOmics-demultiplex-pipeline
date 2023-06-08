@@ -35,8 +35,8 @@ process CREATE_INDEX_FILE {
         index_df = pd.DataFrame(columns = ["sample_id", "assay", "index_seq_fw", "index_seq_rv", "full_primer_seq_fw", "full_primer_seq_rv", "fw_no", "rv_no"])
         
         for assay in assay_list:
-            curr_plate_df = pd.read_excel(${plate_file}, sheet_name = assay + "_plate")
-            curr_index_df = pd.read_excel(${plate_file}, sheet_name = assay + "_index")
+            curr_plate_df = pd.read_excel(${plate_file}, sheet_name = assay + "_plate", dtype=str)
+            curr_index_df = pd.read_excel(${plate_file}, sheet_name = assay + "_index", dtype=str)
 
             # Loop through each sample in plate df, then get all the information needed for that sample
             for col in curr_plate_df.columns:
