@@ -128,6 +128,9 @@ process VALIDATE_INPUT {
                 # An index file can contain multiple assays, we just want the rows for the current assay
                 curr_assay_df = index_df[index_df["assay"] == assay]
 
+                # Make sure the rows in the new df start with 0
+                curr_assay_df.reset_index(drop=True, inplace=True)
+
                 # Make sure there are no duplicate samples
                 if len(curr_assay_df["sample_id"]) != len(set(curr_assay_df["sample_id"])):
                     raise AssertionError("index file: " + ${index_file} + " - sample_id column can't contain duplicate samples within an assay. Duplicate samples: " +

@@ -121,7 +121,8 @@ workflow DEMULTIPLEX_PIPELINE {
         ch_raw_data,
         CREATE_DEMUX_DEPENDENCIES.out.fw_index,
         CREATE_DEMUX_DEPENDENCIES.out.rv_index,
-        params.ulimit
+        params.ulimit,
+        ch_assays
     )
 
     //

@@ -6,6 +6,7 @@ process CUTADAPT {
     path fw_index 
     path rv_index
     val ulimit
+    val assays
 
     output:
     path "*.fq.gz", emit: reads
@@ -20,29 +21,32 @@ process CUTADAPT {
     # Too avoid too many open files error:
     ulimit -S -n ${ulimit}
 
-    cat ${fw_index} > fw_concat.fa
-    cat ${rv_index} > rv_concat.fa
+    IFS=',' read -ra assay_array <<< "$assays"
 
-    #..........................................................................................
-    # | The -g and -G option specify that we are dealing with combinatorial adapters.
-    # | As per cutadapt documentation llumina’s combinatorial dual indexing strategy uses
-    # | a set of indexed adapters on R1 and another one on R2. Unlike unique dual indexes (UDI),
-    # | all combinations of indexes are possible.
-    # | this is another difference: the output will assign the name from the forward and reverse
-    # | reads that were identified with the dual index
-    # |
-    # |the '^' in front of file (^file:) means that we anchor the tags to the beginning of the read!
-    #..........................................................................................
+    for a in "\${assay_array[@]}"
+    do
 
-    cutadapt -j ${task.cpus} \
-             -e 0.15 \
-             --no-indels \
-             -g ^file:fw_concat.fa  \
-             -G ^file:rv_concat.fa \
-             -o {name1}-{name2}.R1.fq.gz \
-             -p {name1}-{name2}.R2.fq.gz \
-             --report=full \
-             --minimum-length 1 \
-             ${raw_data}
+        #..........................................................................................
+        # | The -g and -G option specify that we are dealing with combinatorial adapters.
+        # | As per cutadapt documentation llumina’s combinatorial dual indexing strategy uses
+        # | a set of indexed adapters on R1 and another one on R2. Unlike unique dual indexes (UDI),
+        # | all combinations of indexes are possible.
+        # | this is another difference: the output will assign the name from the forward and reverse
+        # | reads that were identified with the dual index
+        # |
+        # |the '^' in front of file (^file:) means that we anchor the tags to the beginning of the read!
+        #..........................................................................................
+
+        cutadapt -j ${task.cpus} \
+                 -e 0.15 \
+                 --no-indels \
+                 -g ^file:\${a}_fw.fa  \
+                 -G ^file:\${a}_rv.fa \
+                 -o {name1}-{name2}.R1.fq.gz \
+                 -p {name1}-{name2}.R2.fq.gz \
+                 --report=full \
+                 --minimum-length 1 \
+                 ${raw_data}
+    done
     """
 }
