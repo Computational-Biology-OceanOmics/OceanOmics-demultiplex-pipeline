@@ -30,6 +30,12 @@ process VALIDATE_INPUT {
     warnings.filterwarnings("ignore", category = UserWarning, module = "openpyxl")
     assay_list = ${assays}.split(",")
 
+    # function to convert special characters to underscores, since some special characters can cause problems later in the pipeline
+    def special_chars_to_underscores(input_string):
+        special_chars = "!@#\$%^&*()[]{};:,.<>/?\\\\|`~"
+        converted_string = ''.join(['_' if char in special_chars else char for char in input_string])
+        return converted_string
+
     # Validate and import metadata file
     try:
         metadata_df = pd.read_csv(${metadata}, dtype=str)
@@ -37,6 +43,8 @@ process VALIDATE_INPUT {
             raise AssertionError("metadata file: " + ${metadata} + " - missing 'sample_id' column")
         if metadata_df["sample_id"].isnull().values.any():
             raise AssertionError("metadata file: " + ${metadata} + " - 'sample_id' column can't contain any NA values")
+
+        metadata_df['sample_id'] = metadata_df['sample_id'].apply(special_chars_to_underscores)
 
         # Save valid file
         metadata_df.to_csv("valid_metadata.csv", index=False)
@@ -77,6 +85,8 @@ process VALIDATE_INPUT {
                 raise AssertionError("index file: " + ${index_file} + " - missing 'sample_id' column")
             if index_df["sample_id"].isnull().values.any():
                 raise AssertionError("index file: " + ${index_file} + " - 'sample_id' column can't contain any NA values")
+
+            index_df['sample_id'] = index_df['sample_id'].apply(special_chars_to_underscores)
 
             if "assay" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'assay' column")
@@ -247,7 +257,8 @@ process VALIDATE_INPUT {
                     primer_list.append(col)
                     for row in range(len(curr_samples_df.index)):
                         if not pd.isna(curr_samples_df.at[row,col]):
-                            sample_list.append(str(curr_samples_df.at[row,col]))
+                            curr_sample = special_chars_to_underscores(str(curr_samples_df.at[row,col]))
+                            sample_list.append(curr_sample)
                 
                 # Make sure there are no duplicate samples in plate sheet
                 if len(set(sample_list)) != len(sample_list):
