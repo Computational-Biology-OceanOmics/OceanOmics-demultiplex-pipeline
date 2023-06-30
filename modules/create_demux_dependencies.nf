@@ -52,25 +52,25 @@ process CREATE_DEMUX_DEPENDENCIES {
         barcodes\$sample_id[duplicate_rows] <- paste0(barcodes\$sample_id[duplicate_rows], "_", underscore_numbers[duplicate_rows])
 
         # This will generate a .fa file that searches for both the Fw and the Rv file in R1; whilst keeping the same sample name.
-        cat(paste(paste0('>', assay, '_', barcodes\$fw_no),
+        cat(paste(paste0(">", assay, "_", barcodes\$fw_no),
                   barcodes\$index_seq_fw,
-                  paste0('>', assay, '_', barcodes\$rv_no),
-                  barcodes\$index_seq_rv, sep='\n'), 
-                  sep = '\n', 
-                  file = paste0(assay, '_fw.fa'))
+                  paste0(">", assay, "_", barcodes\$rv_no),
+                  barcodes\$index_seq_rv, sep="\n"), 
+                  sep = "\n", 
+                  file = paste0(assay, "_fw.fa"))
 
-        cat(paste(paste0('>',assay,'_',barcodes\$rv_no),
+        cat(paste(paste0(">",assay,"_",barcodes\$rv_no),
                   barcodes\$index_seq_rv,
-                  paste0('>',assay,'_',barcodes\$fw_no),
-                  barcodes\$index_seq_fw, sep='\n'), 
-                  sep = '\n', 
-                  file = paste0(assay, '_rv.fa'))
+                  paste0(">",assay,"_",barcodes\$fw_no),
+                  barcodes\$index_seq_fw, sep="\n"), 
+                  sep = "\n", 
+                  file = paste0(assay, "_rv.fa"))
 
         # This section creates a file to rename the demultiplexed files to reflect the sample name, including the assay
-        cat(paste0(assay,'_', barcodes\$fw_no, '-', assay, "_", barcodes\$rv_no, '.R[12].fq.gz ', barcodes\$sample_id ,'_',assay,'_forward.#1.fq.gz'),
-            paste0(assay,'_', barcodes\$rv_no, '-', assay, "_", barcodes\$fw_no, '.R[12].fq.gz ', barcodes\$sample_id ,'_',assay,'_reverse.#1.fq.gz'),
-            sep='\n',
-            file=paste0(assay, '_sample_name_rename_pattern.txt'))
+        cat(paste0(assay,"_", barcodes\$fw_no, "-", assay, "_", barcodes\$rv_no, ".R[12].fq.gz ", barcodes\$sample_id ,"_", assay, "_forward.#1.fq.gz"),
+            paste0(assay,"_", barcodes\$rv_no, "-", assay, "_", barcodes\$fw_no, ".R[12].fq.gz ", barcodes\$sample_id ,"_", assay, "_reverse.#1.fq.gz"),
+            sep="\n",
+            file=paste0(assay, "_sample_name_rename_pattern.txt"))
         }
     
     """

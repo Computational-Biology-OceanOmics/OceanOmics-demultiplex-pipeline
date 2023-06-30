@@ -21,7 +21,7 @@ process CUTADAPT {
     # Too avoid too many open files error:
     ulimit -S -n ${ulimit}
 
-    IFS=',' read -ra assay_array <<< "$assays"
+    IFS="," read -ra assay_array <<< "$assays"
 
     for a in "\${assay_array[@]}"
     do

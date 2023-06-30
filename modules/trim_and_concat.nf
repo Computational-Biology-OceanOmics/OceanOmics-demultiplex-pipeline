@@ -21,7 +21,7 @@ process TRIM_AND_CONCAT {
         suffix=\$3
         forward_trim=\$4
         reverse_trim=\$5
-        prefix=\$(basename "\$file2" | rev | cut -d '_' -f 2- | rev)
+        prefix=\$(basename "\$file2" | rev | cut -d "_" -f 2- | rev)
 
         if [[ "\$suffix" == "1.fq" ]]; then
             # Trim reads
@@ -41,7 +41,7 @@ process TRIM_AND_CONCAT {
     }
     export -f process_files
 
-    IFS=',' read -ra assays <<< "$assays"
+    IFS="," read -ra assays <<< "$assays"
     for a in "\${assays[@]}"; do
         if [[ "\${a^^}" == "16S" ]]; then
             forward_trim=20

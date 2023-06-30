@@ -49,10 +49,10 @@ process CREATE_INDEX_FILE {
                             entry = pd.DataFrame({ \
                                 "sample_id":[curr_plate_df.at[row,col]], \
                                 "assay":[assay], \
-                                "index_seq_fw":[curr_index_df.loc[curr_index_df['primer_#'] == fw_no, 'tags'].values[0]], \
-                                "index_seq_rv":[curr_index_df.loc[curr_index_df['primer_#'] == rv_no, 'tags'].values[0]], \
-                                "full_primer_seq_fw":[curr_index_df.loc[curr_index_df['primer_#'] == fw_no, 'primer_seq'].values[0]], \
-                                "full_primer_seq_rv":[curr_index_df.loc[curr_index_df['primer_#'] == rv_no, 'primer_seq'].values[0]], \
+                                "index_seq_fw":[curr_index_df.loc[curr_index_df["primer_#"] == fw_no, "tags"].values[0]], \
+                                "index_seq_rv":[curr_index_df.loc[curr_index_df["primer_#"] == rv_no, "tags"].values[0]], \
+                                "full_primer_seq_fw":[curr_index_df.loc[curr_index_df["primer_#"] == fw_no, "primer_seq"].values[0]], \
+                                "full_primer_seq_rv":[curr_index_df.loc[curr_index_df["primer_#"] == rv_no, "primer_seq"].values[0]], \
                                 "fw_no":[fw_no], \
                                 "rv_no":[rv_no] })
                             index_df = pd.concat([index_df, entry], ignore_index=True)

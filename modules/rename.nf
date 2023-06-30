@@ -27,13 +27,13 @@ process RENAME {
     mkdir -p assigned unknown unnamed
     mv *unknown*.fq.gz unknown
     
-    IFS=',' read -ra assays <<< "$assays"
+    IFS="," read -ra assays <<< "$assays"
     for a in "\${assays[@]}"; do
         mv \${a}_*.fq.gz unnamed
     done
 
     # Check if any samples in rename file didn't get demultiplexed
-    samples=\$(awk '{split(\$2, a, ".#1.fq.gz"); print a[1]}' "sample_rename_concat.txt")
+    samples=\$(awk "{split(\$2, a, ".#1.fq.gz"); print a[1]}" "sample_rename_concat.txt")
     missing_samples=()
     for sample in \$samples; do
         if ! compgen -G "\$sample*"; then

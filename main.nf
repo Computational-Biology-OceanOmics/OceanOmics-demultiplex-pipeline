@@ -62,6 +62,7 @@ if (params.index_file )  {
 
 include { CREATE_DEMUX_DEPENDENCIES } from './modules/create_demux_dependencies.nf'
 include { CREATE_INDEX_FILE         } from './modules/create_index_file.nf'
+include { CREATE_SAMPLESHEET        } from './modules/create_samplesheet.nf'
 include { CUTADAPT                  } from './modules/cutadapt.nf'
 include { RENAME                    } from './modules/rename.nf'
 include { SEQKIT_STATS as \
@@ -173,6 +174,15 @@ workflow DEMULTIPLEX_PIPELINE {
     FINAL_STATS (
         TRIM_AND_CONCAT.out.reads,
         "final"
+    )
+
+    //
+    // MODULE: Check stats after trimming and concatenating files
+    //
+    CREATE_SAMPLESHEET (
+        VALIDATE_INPUT.out.valid_metadata,
+        ch_assays,
+        params.outdir
     )
 }
 

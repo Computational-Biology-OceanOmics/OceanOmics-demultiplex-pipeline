@@ -33,7 +33,7 @@ process VALIDATE_INPUT {
     # function to convert special characters to underscores, since some special characters can cause problems later in the pipeline
     def special_chars_to_underscores(input_string):
         special_chars = "!@#\$%^&*()[]{};:,.<>/?\\\\|`~"
-        converted_string = ''.join(['_' if char in special_chars else char for char in input_string])
+        converted_string = "".join(["_" if char in special_chars else char for char in input_string])
         return converted_string
 
     # Validate and import metadata file
@@ -44,7 +44,7 @@ process VALIDATE_INPUT {
         if metadata_df["sample_id"].isnull().values.any():
             raise AssertionError("metadata file: " + ${metadata} + " - 'sample_id' column can't contain any NA values")
 
-        metadata_df['sample_id'] = metadata_df['sample_id'].apply(special_chars_to_underscores)
+        metadata_df["sample_id"] = metadata_df["sample_id"].apply(special_chars_to_underscores)
 
         # Save valid file
         metadata_df.to_csv("valid_metadata.csv", index=False)
@@ -86,7 +86,7 @@ process VALIDATE_INPUT {
             if index_df["sample_id"].isnull().values.any():
                 raise AssertionError("index file: " + ${index_file} + " - 'sample_id' column can't contain any NA values")
 
-            index_df['sample_id'] = index_df['sample_id'].apply(special_chars_to_underscores)
+            index_df["sample_id"] = index_df["sample_id"].apply(special_chars_to_underscores)
 
             if "assay" not in index_df.columns:
                 raise AssertionError("index file: " + ${index_file} + " - missing 'assay' column")
@@ -219,7 +219,7 @@ process VALIDATE_INPUT {
     
     # Create empty file if index option wasn't used to avoid error with Nextflow not finding output files
     else:
-        with open("empty_index_file.csv", 'w') as file:
+        with open("empty_index_file.csv", "w") as file:
             pass
 
     # Validate and import plate file (There should be a plate sheet and an index sheet for each assay)
@@ -245,9 +245,9 @@ process VALIDATE_INPUT {
                     str(sorted(list(curr_plate_df[curr_plate_df.duplicated(subset="f_primers", keep=False)]["f_primers"].unique()))))
 
                 # Pandas will add a '.' and a number to a column name if there are duplicate columns. We can use this to check for duplicates.
-                if len([col for col in curr_plate_df.columns if '.' in col]) > 0:
+                if len([col for col in curr_plate_df.columns if "." in col]) > 0:
                     raise AssertionError("plate file: " + ${plate_file} + " - plate sheet can't contain duplicate columns, or columns containing '.'. Offending columns: " +
-                    str(sorted(list([col for col in curr_plate_df.columns if '.' in col]))))
+                    str(sorted(list([col for col in curr_plate_df.columns if "." in col]))))
                 
                 # Get a list of all samples and primers in plate sheet
                 curr_samples_df = curr_plate_df.iloc[:, 1:]
@@ -361,7 +361,7 @@ process VALIDATE_INPUT {
     
     # Create empty file if plate option wasn't used to avoid error with Nextflow not finding output files
     else:
-        with open("empty_plate_file.xlsx", 'w') as file:
+        with open("empty_plate_file.xlsx", "w") as file:
             pass
     """
 }
