@@ -11,7 +11,7 @@ This repository contains OceanOmics demultiplexing pipeline. The demultiplexing 
 ## Usage Example
 
 ```
-nextflow run /path/to/OceanOmics-demultiplex-pipeline/main.nf --raw_data "path/to/file*{R1,R2}*.fq.gz" --plate_file path/to/plates.xlsx --metadata path/to/metadata.csv --outdir output --bind_dir $(pwd) assays 16S,MiFish
+nextflow run /path/to/OceanOmics-demultiplex-pipeline/main.nf --raw_data "path/to/file*{R1,R2}*.fq.gz" --plate_file path/to/plates.xlsx --metadata path/to/metadata.csv --outdir output --bind_dir $(pwd) --assays 16S,MiFish
 ```
 
 This will set the current directory as the work directory and the output files will be saved in a subdirectory called 'output'.
